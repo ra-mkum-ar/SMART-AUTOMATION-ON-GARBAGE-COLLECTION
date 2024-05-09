@@ -1,0 +1,160 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <LcdBarGraphRobojax.h>
+
+
+
+byte lcdNumCols = 16; // -- number of columns in the LCD
+byte lcdLine = 2; // -- number of line in the LCD
+
+LiquidCrystal_I2C lcd(0X27,lcdNumCols,lcdLine); //0x3f is address for I2C
+                  // to get I2C address, run I2C Scanner. 
+                  //Link is provided (in same page as this code) at http://robojax.com/learn/arduino
+LcdBarGraphRobojax rjx(&lcd, 16, 0, 0);  // -- creating 16 character long bargraph starting at char 0 of line 0 (see video)
+
+#include <NewPing.h>
+
+int flow = 0 ;
+#define TRIGGER_PIN  5  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN     6  // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define MAX_DISTANCE 15
+// Maximum distance we want to ping for (in centimetres). Maximum sensor distance is rated at 400-500cm.
+
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
+int VCC2 = 2;// additional VCC(5) for device
+void setup(){
+  pinMode(VCC2, OUTPUT);// extra VCC for ultrasonic
+  digitalWrite(VCC2, HIGH);//extra VCC is now HIGH (5V)
+    
+  // -- initializing the LCD
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
+  lcd.print("  SMART * WASTE"); 
+  lcd.setCursor (0,1); //  
+  lcd.print("   MANAGEMENT"); 
+   
+  // -- do some delay: some time I've got broken visualization
+  delay(2000);
+  lcd.clear();
+}
+
+void loop()
+{
+  
+  int distanceCM = sonar.ping_cm();// get distance in cm
+  int distanceIN = sonar.ping_in();// get distance in in
+  
+  flow = MAX_DISTANCE -distanceCM;
+ 
+  rjx.drawValue( flow, MAX_DISTANCE);
+ 
+  lcd.setCursor (0,1); //
+  lcd.print("Capacity:"); 
+  lcd.setCursor (13,1); //  
+  lcd.print("%");
+  lcd.setCursor (10,1); //
+  lcd.print(flow); // print
+  
+ 
+}
+
+You, Dec 7, 2022, 4:51 PM
+https://youtu.be/KQrU2bC8vgM
+
+SRIDHARAN M, Jan 20, 2023, 4:39 PM
+Infrared thermometer: This is a handheld device that measures the temperature of the surface of the concrete slab by sensing the infrared radiation emitted by the material.
+Thermocouples: These are small sensors that can be inserted into the concrete slab to measure the temperature at different depths.
+Data loggers: These are devices that can be placed on or in the concrete slab to record temperature data over time.
+Contact thermometer: This is a handheld device that measures the temperature of the concrete slab by making direct contact with the surface.
+
+SRIDHARAN M, Jan 26, 2023, 10:25 AM
+https://tome.app/student-12e
+
+SRIDHARAN M, Jan 26, 2023, 2:50 PM
+//
+// Copyright 2015 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// FirebaseDemo_ESP8266 is a sample that demo the different functions
+// of the FirebaseArduino API.
+
+#include <ESP8266WiFi.h>
+#include <FirebaseArduino.h>
+
+// Set these to run example.
+#define FIREBASE_HOST "home-automation-74e19-default-rtdb.firebaseio.com"
+#define FIREBASE_AUTH "g7LUnaf7JHOhCeyMia8QGZcCEBL369odAUPGJuVi"
+#define WIFI_SSID "Radhe Radhe"
+#define WIFI_PASSWORD "7067nilu"
+
+void setup() {
+  Serial.begin(9600);
+
+  // connect to wifi.
+  pinMode(D2,OUTPUT);
+  pinMode(D4,OUTPUT);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("connecting");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println();
+  Serial.print("connected: ");
+  Serial.println(WiFi.localIP());
+  
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+  Firebase.set("LED_STATUS",0);
+  Firebase.set("FAN_STATUS",0);
+}
+
+int b = 0;
+int f = 0;
+
+void loop() {
+  // set value
+  b=Firebase.getInt("LED_STATUS");
+  f=Firebase.getInt("FAN_STATUS");
+  // handle error
+
+  //For Bulb
+  if (b==0) {
+      Serial.print("LED On");
+      digitalWrite(D2,HIGH);  
+      return;
+      delay(100);
+  }
+  else{
+    Serial.print("LED Off");
+      digitalWrite(D2,LOW); 
+    }
+  // update value
+   //For Fan
+  if (f==0) {
+      Serial.print("FAN On");
+      digitalWrite(D4,HIGH);  
+      return;
+      delay(100);
+  }
+  else{
+    Serial.print("FAN Off");
+      digitalWrite(D4,LOW); 
+    }
+    // update value
+}
+fire base bulb and fan.txt
+Open with Google Docs
+Displaying fire base bulb and fan.txt.
